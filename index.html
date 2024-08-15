@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minute Cryptic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 { color: #1890ff; }
+        button {
+            background-color: #1890ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover { background-color: #40a9ff; }
+        .answer-grid {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .answer-cell {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #d9d9d9;
+            margin: 0 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 5px;
+            margin-top: 10px;
+        }
+        .key {
+            padding: 5px;
+            font-size: 14px;
+        }
+        .par-dots {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #d9d9d9;
+            margin: 0 2px;
+        }
+        .dot.filled { background-color: #1890ff; }
+    </style>
+</head>
+<body>
+    <div class="container" id="game-container"></div>
+
+    <script>
+        const gameContainer = document.getElementById('game-container');
+        const clue = "Hands in long sandwich gloves, say (7)";
+        const correctAnswer = "SUBMITS";
+        let answer = "       ";
+        let hints = 0;
+        let streak = 1;
+        let score = 4;
+        let par = 8;
+
+        function renderHomeScreen() {
+            gameContainer.innerHTML = `
+                <h1>Minute Cryptic</h1>
+                <p>Solve a clue with a hidden meaning.</p>
+                <button onclick="startGame()">Play</button>
+                <p>streak ${streak} | ${score} score</p>
+            `;
+        }
+
+        function renderGameScreen() {
+            gameContainer.innerHTML = `
+                <h2>${clue}</h2>
+                <div class="answer-grid">
+                    ${answer.split('').map(letter => `<div class="answer-cell">${letter}</div>`).join('')}
+                </div>
+                <button onclick="showHint()">show hint</button>
+                <button onclick="showLetter()">show letter</button>
+                <div id="hint-text"></div>
+                <div class="keyboard">
+                    ${'QWERTYUIOPASDFGHJKLZXCVBNM'.split('').map(key => 
+                        `<button class="key" onclick="handleKeyPress('${key}')">${key}</button>`
+                    ).join('')}
+                </div>
+                <button onclick="checkAnswer()">Check Answer</button>
+                <div class="par-dots">
+                    ${Array(par).fill().map((_, i) => `<div class="dot ${i < hints ? 'filled' : ''}"></div>`).join('')}
+                </div>
+            `;
+        }
+
+        function renderSuccessScreen() {
+            gameContainer.innerHTML = `
+                <h1>You got it!</h1>
+                <p>You solved the Minute Cryptic</p>
+                <p>${hints > par ? `${hints - par} over par` : `${par - hints} under par`}</p>
+                <div class="par-dots">
+                    ${Array(par).fill().map((_, i) => `<div class="dot ${i < hints ? 'filled' : ''}"></div>`).join('')}
+                </div>
+                <button onclick="watchExplanation()">Watch it explained</button>
+                <button onclick="shareResult()">Share!</button>
+                <p>Next clue in 23:59:59</p>
+            `;
+        }
+
+        function startGame() {
+            answer = "       ";
+            hints = 0;
+            renderGameScreen();
+        }
+
+        function handleKeyPress(key) {
+            const index = answer.indexOf(' ');
+            if (index !== -1) {
+                answer = answer.substring(0, index) + key + answer.substring(index + 1);
+                renderGameScreen();
+            }
+        }
+
+        function showHint() {
+            hints++;
+            document.getElementById('hint-text').textContent = "Think about turning something in.";
+            renderGameScreen();
+        }
+
+        function showLetter() {
+            const unrevealedIndices = answer.split('').map((char, index) => char === ' ' ? index : -1).filter(i => i !== -1);
+            if (unrevealedIndices.length > 0) {
+                const randomIndex = unrevealedIndices[Math.floor(Math.random() * unrevealedIndices.length)];
+                answer = answer.substring(0, randomIndex) + correctAnswer[randomIndex] + answer.substring(randomIndex + 1);
+                hints++;
+                renderGameScreen();
+            }
+        }
+
+        function checkAnswer() {
+            if (answer.toUpperCase() === correctAnswer) {
+                streak++;
+                score += Math.max(0, par - hints);
+                renderSuccessScreen();
+            } else {
+                alert("Not quite right. Try again!");
+            }
+        }
+
+        function watchExplanation() {
+            alert("Opening explanation video...");
+        }
+
+        function shareResult() {
+            const text = `I solved today's Minute Cryptic ${hints > par ? `${hints - par} over par` : `${par - hints} under par`}! Can you beat me? #MinuteCryptic`;
+            alert("Share this text:\n\n" + text);
+        }
+
+        renderHomeScreen();
+    </script>
+</body>
+</html>

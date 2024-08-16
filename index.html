@@ -80,6 +80,23 @@
     <div class="container" id="game-container"></div>
 
     <script>
+        <script>
+  async function fetchDailyClue() {
+    const today = new Date().toISOString().split('T')[0];
+    try {
+      const response = await fetch(`_clues/${today}.json`);
+      if (!response.ok) {
+        throw new Error('No clue available for today');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Failed to fetch daily clue:', error);
+      return null;
+    }
+  }
+
+  // Your existing code starts here
+  // ...
         const gameContainer = document.getElementById('game-container');
         const clue = "Hands in long sandwich gloves, say (7)";
         const correctAnswer = "SUBMITS";
@@ -98,26 +115,20 @@
             `;
         }
 
-        function renderGameScreen() {
-            gameContainer.innerHTML = `
-                <h2>${clue}</h2>
-                <div class="answer-grid">
-                    ${answer.split('').map(letter => `<div class="answer-cell">${letter}</div>`).join('')}
-                </div>
-                <button onclick="showHint()">show hint</button>
-                <button onclick="showLetter()">show letter</button>
-                <div id="hint-text"></div>
-                <div class="keyboard">
-                    ${'QWERTYUIOPASDFGHJKLZXCVBNM'.split('').map(key => 
-                        `<button class="key" onclick="handleKeyPress('${key}')">${key}</button>`
-                    ).join('')}
-                </div>
-                <button onclick="checkAnswer()">Check Answer</button>
-                <div class="par-dots">
-                    ${Array(par).fill().map((_, i) => `<div class="dot ${i < hints ? 'filled' : ''}"></div>`).join('')}
-                </div>
-            `;
-        }
+       async function startGame() {
+  const dailyClue = await fetchDailyClue();
+  if (dailyClue) {
+    clue = dailyClue.clue;
+    correctAnswer = dailyClue.answer;
+    // Update other game variables as needed
+  } else {
+    // Use a default clue if no daily clue is available
+    clue = "Default sports clue (7)";
+    correctAnswer = "DEFAULT";
+  }
+  // Rest of your game initialization logic
+  renderGameScreen();
+}
 
         function renderSuccessScreen() {
             gameContainer.innerHTML = `

@@ -148,6 +148,37 @@
                 alert("Incorrect. Try again!");
                 renderGameScreen();
             }
+            async function fetchDailyClue() {
+    const today = new Date().toISOString().split('T')[0];
+    try {
+        const response = await fetch(`_clues/${today}-clue.json`);
+        if (!response.ok) {
+            throw new Error('No clue available for today');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Failed to fetch daily clue:', error);
+        return null;
+    }
+}
+
+// Modify your startGame function:
+async function startGame() {
+    const dailyClue = await fetchDailyClue();
+    if (dailyClue) {
+        clue = dailyClue.clue;
+        correctAnswer = dailyClue.answer.toUpperCase();
+        hint = dailyClue.hint;
+    } else {
+        // Use default values if no clue is available
+        clue = "Default sports clue (7)";
+        correctAnswer = "DEFAULT";
+        hint = "This is a default hint.";
+    }
+    currentAnswer = " ".repeat(correctAnswer.length);
+    attempts = 0;
+    renderGameScreen();
+}
         }
 
         function showHowToPlay() {

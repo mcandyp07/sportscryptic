@@ -81,17 +81,23 @@
         let attempts = 0;
         let hint = "";
 
-        async function fetchDailyClue() {
-            const today = new Date().toISOString().split('T')[0];
-            try {
-                const response = await fetch(`_clues/${today}.json`);
-                if (!response.ok) {
-                    throw new Error('No clue available for today');
-                }
-                return await response.json();
-            } catch (error) {
-                console.error('Failed to fetch daily clue:', error);
-                return null;
+    async function fetchDailyClue() {
+    const today = new Date().toISOString().split('T')[0];
+    console.log('Attempting to fetch clue for:', today);
+    try {
+        const response = await fetch(`_clues/${today}.json`);
+        console.log('Fetch response:', response);
+        if (!response.ok) {
+            throw new Error('No clue available for today');
+        }
+        const data = await response.json();
+        console.log('Fetched data:', data);
+        return data;
+    } catch (error) {
+        console.error('Failed to fetch daily clue:', error);
+        return null;
+    }
+}
             }
         }
 

@@ -1,0 +1,21 @@
+backend:
+  name: github
+  repo: mcandyp07/sportscryptic
+  branch: main # Branch to update (optional; defaults to master)
+
+media_folder: "images/uploads" # Media files will be stored in the repo under images/uploads
+
+collections:
+  - name: "clues"
+    label: "Daily Clues"
+    folder: "_clues"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-clue"
+    fields:
+      - {label: "Layout", name: "layout", widget: "hidden", default: "clue"}
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Publish Date", name: "date", widget: "datetime"}
+      - {label: "Clue", name: "clue", widget: "string"}
+      - {label: "Answer", name: "answer", widget: "string"}
+      - {label: "Hint", name: "hint", widget: "string"}
+      - {label: "Explanation", name: "explanation", widget: "text"}

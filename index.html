@@ -162,7 +162,6 @@
     }
 }
 
-// Modify your startGame function:
 async function startGame() {
     const dailyClue = await fetchDailyClue();
     if (dailyClue) {
@@ -178,6 +177,7 @@ async function startGame() {
     currentAnswer = " ".repeat(correctAnswer.length);
     attempts = 0;
     renderGameScreen();
+}
 }
         }
 
@@ -198,5 +198,18 @@ async function startGame() {
 
         renderHomeScreen();
     </script>
+    async function fetchDailyClue() {
+    const today = new Date().toISOString().split('T')[0];
+    try {
+        const response = await fetch(`_clues/${today}.json`);
+        if (!response.ok) {
+            throw new Error('No clue available for today');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Failed to fetch daily clue:', error);
+        return null;
+    }
+}
 </body>
 </html>

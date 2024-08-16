@@ -75,11 +75,41 @@
 
     <script>
         const gameContainer = document.getElementById('game-container');
-        let clue = "Sports team's locker area glistens (7)";
-        let correctAnswer = "SHOWERS";
-        let currentAnswer = "       ";
+        let clue = "";
+        let correctAnswer = "";
+        let currentAnswer = "";
         let attempts = 0;
-        let hint = "Think about what athletes might use after a game.";
+        let hint = "";
+
+        async function fetchDailyClue() {
+            const today = new Date().toISOString().split('T')[0];
+            try {
+                const response = await fetch(`_clues/${today}.json`);
+                if (!response.ok) {
+                    throw new Error('No clue available for today');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Failed to fetch daily clue:', error);
+                return null;
+            }
+        }
+
+        async function startGame() {
+            const dailyClue = await fetchDailyClue();
+            if (dailyClue) {
+                clue = dailyClue.clue;
+                correctAnswer = dailyClue.answer.toUpperCase();
+                hint = dailyClue.hint;
+            } else {
+                clue = "Default sports clue (7)";
+                correctAnswer = "DEFAULT";
+                hint = "This is a default hint.";
+            }
+            currentAnswer = " ".repeat(correctAnswer.length);
+            attempts = 0;
+            renderGameScreen();
+        }
 
         function renderHomeScreen() {
             gameContainer.innerHTML = `
@@ -88,12 +118,6 @@
                 <button onclick="startGame()">Play</button>
                 <button onclick="showHowToPlay()">How To Play</button>
             `;
-        }
-
-        function startGame() {
-            currentAnswer = " ".repeat(correctAnswer.length);
-            attempts = 0;
-            renderGameScreen();
         }
 
         function renderGameScreen() {
@@ -148,37 +172,6 @@
                 alert("Incorrect. Try again!");
                 renderGameScreen();
             }
-            async function fetchDailyClue() {
-    const today = new Date().toISOString().split('T')[0];
-    try {
-        const response = await fetch(`_clues/${today}-clue.json`);
-        if (!response.ok) {
-            throw new Error('No clue available for today');
-        }
-        return await response.json();
-    } catch (error) {
-        console.error('Failed to fetch daily clue:', error);
-        return null;
-    }
-}
-
-async function startGame() {
-    const dailyClue = await fetchDailyClue();
-    if (dailyClue) {
-        clue = dailyClue.clue;
-        correctAnswer = dailyClue.answer.toUpperCase();
-        hint = dailyClue.hint;
-    } else {
-        // Use default values if no clue is available
-        clue = "Default sports clue (7)";
-        correctAnswer = "DEFAULT";
-        hint = "This is a default hint.";
-    }
-    currentAnswer = " ".repeat(correctAnswer.length);
-    attempts = 0;
-    renderGameScreen();
-}
-}
         }
 
         function showHowToPlay() {
@@ -198,18 +191,5 @@ async function startGame() {
 
         renderHomeScreen();
     </script>
-    async function fetchDailyClue() {
-    const today = new Date().toISOString().split('T')[0];
-    try {
-        const response = await fetch(`_clues/${today}.json`);
-        if (!response.ok) {
-            throw new Error('No clue available for today');
-        }
-        return await response.json();
-    } catch (error) {
-        console.error('Failed to fetch daily clue:', error);
-        return null;
-    }
-}
 </body>
 </html>

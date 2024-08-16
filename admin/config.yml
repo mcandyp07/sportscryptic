@@ -1,0 +1,17 @@
+backend:
+  name: github
+  repo: mcandyp07/sportscryptic
+  branch: main
+media_folder: "images/uploads"
+public_folder: "/images/uploads"
+collections:
+  - name: "clues"
+    label: "Daily Clues"
+    folder: "_clues"
+    create: true
+    fields:
+      - {label: "Date", name: "date", widget: "date"}
+      - {label: "Clue", name: "clue", widget: "string"}
+      - {label: "Answer", name: "answer", widget: "string"}
+      - {label: "Hint", name: "hint", widget: "string"}
+      - {label: "Explanation URL", name: "explanationUrl", widget: "string"}

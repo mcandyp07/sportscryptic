@@ -19,3 +19,26 @@ collections:
       - {label: "Answer", name: "answer", widget: "string"}
       - {label: "Hint", name: "hint", widget: "string"}
       - {label: "Explanation", name: "explanation", widget: "text"}
+      backend:
+  name: github
+  repo: mcandyp07/sportscryptic
+  branch: main
+  base_url: https://api.netlify.com
+  auth_endpoint: auth
+
+media_folder: "images/uploads"
+
+collections:
+  - name: "clues"
+    label: "Daily Clues"
+    folder: "_clues"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-clue"
+    fields:
+      - {label: "Layout", name: "layout", widget: "hidden", default: "clue"}
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Publish Date", name: "date", widget: "datetime"}
+      - {label: "Clue", name: "clue", widget: "string"}
+      - {label: "Answer", name: "answer", widget: "string"}
+      - {label: "Hint", name: "hint", widget: "string"}
+      - {label: "Explanation", name: "explanation", widget: "text"}

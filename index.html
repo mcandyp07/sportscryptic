@@ -101,20 +101,24 @@
             }
         }
 
-        async function startGame() {
-            const dailyClue = await fetchDailyClue();
-            if (dailyClue) {
-                clue = dailyClue.clue;
-                correctAnswer = dailyClue.answer.toUpperCase();
-                hint = dailyClue.hint;
-            } else {
-                clue = "Default sports clue (7)";
-                correctAnswer = "DEFAULT";
-                hint = "This is a default hint.";
-            }
-            currentAnswer = " ".repeat(correctAnswer.length);
-            attempts = 0;
-            renderGameScreen();
+async function startGame() {
+    console.log('Starting game...');
+    const dailyClue = await fetchDailyClue();
+    console.log('Received daily clue:', dailyClue);
+    if (dailyClue) {
+        clue = dailyClue.clue;
+        correctAnswer = dailyClue.answer.toUpperCase();
+        hint = dailyClue.hint;
+    } else {
+        console.log('Using default clue');
+        clue = "Default sports clue (7)";
+        correctAnswer = "DEFAULT";
+        hint = "This is a default hint.";
+    }
+    currentAnswer = " ".repeat(correctAnswer.length);
+    attempts = 0;
+    renderGameScreen();
+}
         }
 
         function renderHomeScreen() {

@@ -1,65 +1,137 @@
-const answerGrid = document.getElementById('answer-grid');
-const keyboard = document.getElementById('keyboard');
-const hint = document.getElementById('hint');
-const result = document.getElementById('result');
-
-const correctAnswer = 'SHOWERS';
-let currentAnswer = ' '.repeat(correctAnswer.length);
-let attempts = 0;
-
-function initializeGame() {
-    renderAnswerGrid();
-    renderKeyboard();
-}
-
-function renderAnswerGrid() {
-    answerGrid.innerHTML = currentAnswer
-        .split('')
-        .map(letter => `<div class="letter-box">${letter}</div>`)
-        .join('');
-}
-
-function renderKeyboard() {
-    const keys = 'QWERTYUIOPASDFGHJKLZXCVBNM';
-    keyboard.innerHTML = keys
-        .split('')
-        .map(key => `<button class="key" onclick="handleKeyPress('${key}')">${key}</button>`)
-        .join('');
-}
-
-function handleKeyPress(key) {
-    const index = currentAnswer.indexOf(' ');
-    if (index !== -1) {
-        currentAnswer = currentAnswer.substring(0, index) + key + currentAnswer.substring(index + 1);
-        renderAnswerGrid();
-    }
-}
-
-function showHint() {
-    hint.textContent = "Think about what athletes might use after a game.";
-    attempts++;
-}
-
-function showLetter() {
-    let index;
-    do {
-        index = Math.floor(Math.random() * correctAnswer.length);
-    } while (currentAnswer[index] !== ' ');
-    currentAnswer = currentAnswer.substring(0, index) + correctAnswer[index] + currentAnswer.substring(index + 1);
-    renderAnswerGrid();
-    attempts++;
-}
-
-function checkAnswer() {
-    if (currentAnswer.toUpperCase() === correctAnswer) {
-        result.textContent = "Correct! Well done!";
-    } else {
-        result.textContent = "Not quite right. Try again!";
-        attempts++;
-        if (attempts >= 5) {
-            result.textContent = `Out of attempts. The correct answer was: ${correctAnswer}`;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sports Cryptic</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
-    }
-}
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo-sports {
+            display: flex;
+            justify-content: center;
+        }
+        .logo-letter {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            border-radius: 5px;
+            margin: 0 2px;
+        }
+        .logo-cryptic {
+            font-size: 36px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 10px;
+        }
+        .clue {
+            font-size: 18px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .answer-grid {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .letter-box {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #ddd;
+            margin: 0 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+        .key {
+            background-color: #f0f0f0;
+            border: none;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .key:hover {
+            background-color: #e0e0e0;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+        .action-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .action-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="game-container">
+        <div class="logo">
+            <div class="logo-sports">
+                <span class="logo-letter" style="background-color: #009688;">S</span>
+                <span class="logo-letter" style="background-color: #E91E63;">P</span>
+                <span class="logo-letter" style="background-color: #FFC107;">O</span>
+                <span class="logo-letter" style="background-color: #3F51B5;">R</span>
+                <span class="logo-letter" style="background-color: #8BC34A;">T</span>
+                <span class="logo-letter" style="background-color: #009688;">S</span>
+            </div>
+            <div class="logo-cryptic">CRYPTIC</div>
+        </div>
+        <div class="clue">Sports team's locker area glistens (7)</div>
+        <div class="answer-grid" id="answer-grid"></div>
+        <div class="keyboard" id="keyboard"></div>
+        <div class="action-buttons">
+            <button class="action-button" onclick="showHint()">Hint</button>
+            <button class="action-button" onclick="showLetter()">Show Letter</button>
+            <button class="action-button" onclick="checkAnswer()">Submit</button>
+        </div>
+        <p id="hint"></p>
+        <p id="result"></p>
+    </div>
 
-initializeGame();
+    <script>
+        // JavaScript code here (we'll add this in the next step)
+    </script>
+</body>
+</html>

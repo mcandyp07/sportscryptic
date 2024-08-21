@@ -56,6 +56,10 @@
             height: 40px;
             margin-bottom: 10px;
         }
+        #result {
+            font-weight: bold;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -143,28 +147,37 @@
         }
 
         function checkAnswer() {
-            const resultElement = document.getElementById('result');
             attempts++;
+            const resultElement = document.getElementById('result');
             
             if (currentAnswer.trim().toUpperCase() === correctAnswer) {
-                resultElement.textContent = "Correct!";
+                resultElement.textContent = "Correct! Well done!";
                 streak++;
                 score += 10;
-                setTimeout(showLandingPage, 2000);
-            } else if (attempts >= 5) {
-                resultElement.textContent = `Out of attempts. The correct answer was: ${correctAnswer}`;
-                setTimeout(showLandingPage, 3000);
+                setTimeout(() => {
+                    alert("Congratulations! You solved the cryptic clue!");
+                    showLandingPage();
+                }, 1000);
             } else {
                 resultElement.textContent = "Not this time, try again.";
+                if (attempts >= 5) {
+                    setTimeout(() => {
+                        alert(`Out of attempts. The correct answer was: ${correctAnswer}`);
+                        showLandingPage();
+                    }, 1000);
+                }
             }
             renderGameScreen();
         }
 
         function showHint() {
+            attempts++;
             document.getElementById('hint').textContent = "Think about what athletes might use after a game.";
+            renderGameScreen();
         }
 
         function showLetter() {
+            attempts++;
             let index;
             do {
                 index = Math.floor(Math.random() * correctAnswer.length);

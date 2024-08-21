@@ -90,6 +90,7 @@
         .action-buttons {
             display: flex;
             justify-content: space-between;
+            margin-top: 20px;
         }
         .action-button {
             background-color: #4CAF50;
@@ -102,6 +103,12 @@
         }
         .action-button:hover {
             background-color: #45a049;
+        }
+        .home-content {
+            text-align: center;
+        }
+        .home-content p {
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -118,34 +125,73 @@
             </div>
             <div class="logo-cryptic">CRYPTIC</div>
         </div>
-        <div class="clue">Sports team's locker area glistens (7)</div>
-        <div class="answer-grid" id="answer-grid"></div>
-        <div class="keyboard" id="keyboard"></div>
-        <div class="action-buttons">
-            <button class="action-button" onclick="showHint()">Hint</button>
-            <button class="action-button" onclick="showLetter()">Show Letter</button>
-            <button class="action-button" onclick="checkAnswer()">Submit</button>
+        <div id="content">
+            <!-- Content will be dynamically inserted here -->
         </div>
-        <p id="hint"></p>
-        <p id="result"></p>
     </div>
 
     <script>
-        const answerGrid = document.getElementById('answer-grid');
-        const keyboard = document.getElementById('keyboard');
-        const hint = document.getElementById('hint');
-        const result = document.getElementById('result');
-
+        const content = document.getElementById('content');
         const correctAnswer = 'SHOWERS';
         let currentAnswer = ' '.repeat(correctAnswer.length);
         let attempts = 0;
+        let streak = 0;
+        let score = 0;
 
-        function initializeGame() {
+        function showHomePage() {
+            content.innerHTML = `
+                <div class="home-content">
+                    <p>Solve a clue with a hidden meaning.</p>
+                    <p>Streak: ${streak} | Score: ${score}</p>
+                    <div class="action-buttons">
+                        <button class="action-button" onclick="startGame()">Play</button>
+                        <button class="action-button" onclick="showHowToPlay()">How to Play</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showHowToPlay() {
+            content.innerHTML = `
+                <h2>How to Play</h2>
+                <ol>
+                    <li>You're presented with a sports-themed cryptic clue.</li>
+                    <li>Try to solve the clue by entering letters into the grid.</li>
+                    <li>Use 'Hint' for a text hint about the clue.</li>
+                    <li>Use 'Show Letter' to reveal a random correct letter.</li>
+                    <li>You have 5 attempts to guess the correct answer.</li>
+                    <li>Click 'Submit' to check your answer.</li>
+                </ol>
+                <button class="action-button" onclick="showHomePage()">Back to Home</button>
+            `;
+        }
+
+        function startGame() {
+            currentAnswer = ' '.repeat(correctAnswer.length);
+            attempts = 0;
+            renderGameScreen();
+        }
+
+        function renderGameScreen() {
+            content.innerHTML = `
+                <div class="clue">Sports team's locker area glistens (7)</div>
+                <div class="answer-grid" id="answer-grid"></div>
+                <div class="keyboard" id="keyboard"></div>
+                <div class="action-buttons">
+                    <button class="action-button" onclick="showHint()">Hint</button>
+                    <button class="action-button" onclick="showLetter()">Show Letter</button>
+                    <button class="action-button" onclick="checkAnswer()">Submit</button>
+                </div>
+                <p id="hint"></p>
+                <p id="result"></p>
+                <button class="action-button" onclick="showHomePage()">Back to Home</button>
+            `;
             renderAnswerGrid();
             renderKeyboard();
         }
 
         function renderAnswerGrid() {
+            const answerGrid = document.getElementById('answer-grid');
             answerGrid.innerHTML = currentAnswer
                 .split('')
                 .map(letter => `<div class="letter-box">${letter}</div>`)
@@ -153,6 +199,7 @@
         }
 
         function renderKeyboard() {
+            const keyboard = document.getElementById('keyboard');
             const keys = 'QWERTYUIOPASDFGHJKLZXCVBNM';
             keyboard.innerHTML = keys
                 .split('')
@@ -169,7 +216,7 @@
         }
 
         function showHint() {
-            hint.textContent = "Think about what athletes might use after a game.";
+            document.getElementById('hint').textContent = "Think about what athletes might use after a game.";
             attempts++;
         }
 
@@ -184,18 +231,24 @@
         }
 
         function checkAnswer() {
+            const result = document.getElementById('result');
             if (currentAnswer.toUpperCase() === correctAnswer) {
                 result.textContent = "Correct! Well done!";
+                streak++;
+                score += 10;
+                setTimeout(showHomePage, 2000);
             } else {
                 result.textContent = "Not quite right. Try again!";
                 attempts++;
                 if (attempts >= 5) {
                     result.textContent = `Out of attempts. The correct answer was: ${correctAnswer}`;
+                    setTimeout(showHomePage, 2000);
                 }
             }
         }
 
-        initializeGame();
+        // Start by showing the home page
+        showHomePage();
     </script>
 </body>
 </html>

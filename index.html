@@ -1,209 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sports Cryptic</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 20px;
-            background-color: #f0f8ff;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 5px;
-        }
-        .letter-block {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            border: 1px solid #000;
-            margin: 0 2px;
-            font-size: 20px;
-            line-height: 30px;
-            text-transform: uppercase;
-            vertical-align: top;
-        }
-        .keyboard {
-            margin-top: 20px;
-        }
-        .keyboard-row {
-            margin: 5px 0;
-        }
-        .key {
-            width: 30px;
-            height: 30px;
-            margin: 2px;
-            font-size: 14px;
-        }
-        #answer-blocks {
-            height: 40px;
-            margin-bottom: 10px;
-        }
-        #result {
-            font-weight: bold;
-            margin-top: 10px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container" id="game-container">
-        <!-- Content will be dynamically inserted here -->
-    </div>
+const answerGrid = document.getElementById('answer-grid');
+const keyboard = document.getElementById('keyboard');
+const hint = document.getElementById('hint');
+const result = document.getElementById('result');
 
-    <script>
-        const gameContainer = document.getElementById('game-container');
-        let streak = 0;
-        let score = 0;
-        let currentAnswer = '';
-        const correctAnswer = 'SHOWERS';
-        let attempts = 0;
+const correctAnswer = 'SHOWERS';
+let currentAnswer = ' '.repeat(correctAnswer.length);
+let attempts = 0;
 
-        function showLandingPage() {
-            gameContainer.innerHTML = `
-                <h1>Sports Cryptic</h1>
-                <p>Solve a clue with a hidden meaning.</p>
-                <button onclick="startGame()">Play</button>
-                <button onclick="showHowToPlay()">How to Play</button>
-                <p>streak ${streak} | ${score} score</p>
-            `;
+function initializeGame() {
+    renderAnswerGrid();
+    renderKeyboard();
+}
+
+function renderAnswerGrid() {
+    answerGrid.innerHTML = currentAnswer
+        .split('')
+        .map(letter => `<div class="letter-box">${letter}</div>`)
+        .join('');
+}
+
+function renderKeyboard() {
+    const keys = 'QWERTYUIOPASDFGHJKLZXCVBNM';
+    keyboard.innerHTML = keys
+        .split('')
+        .map(key => `<button class="key" onclick="handleKeyPress('${key}')">${key}</button>`)
+        .join('');
+}
+
+function handleKeyPress(key) {
+    const index = currentAnswer.indexOf(' ');
+    if (index !== -1) {
+        currentAnswer = currentAnswer.substring(0, index) + key + currentAnswer.substring(index + 1);
+        renderAnswerGrid();
+    }
+}
+
+function showHint() {
+    hint.textContent = "Think about what athletes might use after a game.";
+    attempts++;
+}
+
+function showLetter() {
+    let index;
+    do {
+        index = Math.floor(Math.random() * correctAnswer.length);
+    } while (currentAnswer[index] !== ' ');
+    currentAnswer = currentAnswer.substring(0, index) + correctAnswer[index] + currentAnswer.substring(index + 1);
+    renderAnswerGrid();
+    attempts++;
+}
+
+function checkAnswer() {
+    if (currentAnswer.toUpperCase() === correctAnswer) {
+        result.textContent = "Correct! Well done!";
+    } else {
+        result.textContent = "Not quite right. Try again!";
+        attempts++;
+        if (attempts >= 5) {
+            result.textContent = `Out of attempts. The correct answer was: ${correctAnswer}`;
         }
+    }
+}
 
-        function showHowToPlay() {
-            gameContainer.innerHTML = `
-                <h1>How to Play</h1>
-                <ol>
-                    <li>You're presented with a sports-themed cryptic clue.</li>
-                    <li>Try to solve the clue by entering letters into the grid.</li>
-                    <li>Use 'Show Hint' for a text hint about the clue.</li>
-                    <li>Use 'Show Letter' to reveal a random correct letter.</li>
-                    <li>You have 5 attempts to guess the correct answer.</li>
-                    <li>Click 'Submit' to check your answer.</li>
-                </ol>
-                <button onclick="showLandingPage()">Back to Home</button>
-            `;
-        }
-
-        function startGame() {
-            currentAnswer = ' '.repeat(correctAnswer.length);
-            attempts = 0;
-            renderGameScreen();
-        }
-
-        function renderGameScreen() {
-            gameContainer.innerHTML = `
-                <h2>Sports team's locker area glistens (7)</h2>
-                <div id="answer-blocks">
-                    ${currentAnswer.split('').map(letter => `<span class="letter-block">${letter}</span>`).join('')}
-                </div>
-                <div class="keyboard">
-                    ${'QWERTYUIOP'.split('').map(key => `<button class="key" onclick="handleKeyPress('${key}')">${key}</button>`).join('')}
-                    <br>
-                    ${'ASDFGHJKL'.split('').map(key => `<button class="key" onclick="handleKeyPress('${key}')">${key}</button>`).join('')}
-                    <br>
-                    ${'ZXCVBNM'.split('').map(key => `<button class="key" onclick="handleKeyPress('${key}')">${key}</button>`).join('')}
-                </div>
-                <button onclick="checkAnswer()">Submit</button>
-                <button onclick="showHint()">Show Hint</button>
-                <button onclick="showLetter()">Show Letter</button>
-                <button onclick="clearAnswer()">Clear</button>
-                <p id="hint"></p>
-                <p id="result"></p>
-                <p>Attempts: ${attempts}/5</p>
-                <button onclick="showLandingPage()">Back to Home</button>
-            `;
-        }
-
-        function handleKeyPress(key) {
-            const index = currentAnswer.indexOf(' ');
-            if (index !== -1) {
-                currentAnswer = currentAnswer.substring(0, index) + key + currentAnswer.substring(index + 1);
-                renderGameScreen();
-            }
-        }
-
-        function handleBackspace() {
-            const lastLetterIndex = currentAnswer.trim().length - 1;
-            if (lastLetterIndex >= 0) {
-                currentAnswer = currentAnswer.substring(0, lastLetterIndex) + ' ' + currentAnswer.substring(lastLetterIndex + 1);
-                renderGameScreen();
-            }
-        }
-
-        function checkAnswer() {
-            attempts++;
-            const resultElement = document.getElementById('result');
-            
-            if (currentAnswer.trim().toUpperCase() === correctAnswer) {
-                resultElement.textContent = "Correct! Well done!";
-                streak++;
-                score += 10;
-                setTimeout(() => {
-                    alert("Congratulations! You solved the cryptic clue!");
-                    showLandingPage();
-                }, 1000);
-            } else {
-                resultElement.textContent = "Not this time, try again.";
-                if (attempts >= 5) {
-                    setTimeout(() => {
-                        alert(`Out of attempts. The correct answer was: ${correctAnswer}`);
-                        showLandingPage();
-                    }, 1000);
-                }
-            }
-            renderGameScreen();
-        }
-
-        function showHint() {
-            attempts++;
-            document.getElementById('hint').textContent = "Think about what athletes might use after a game.";
-            renderGameScreen();
-        }
-
-        function showLetter() {
-            attempts++;
-            let index;
-            do {
-                index = Math.floor(Math.random() * correctAnswer.length);
-            } while (currentAnswer[index] !== ' ');
-            currentAnswer = currentAnswer.substring(0, index) + correctAnswer[index] + currentAnswer.substring(index + 1);
-            renderGameScreen();
-        }
-
-        function clearAnswer() {
-            currentAnswer = ' '.repeat(correctAnswer.length);
-            renderGameScreen();
-        }
-
-        // Enable keyboard input
-        document.addEventListener('keydown', function(event) {
-            if (event.key.match(/^[a-zA-Z]$/)) {
-                handleKeyPress(event.key.toUpperCase());
-            } else if (event.key === 'Backspace') {
-                handleBackspace();
-            } else if (event.key === 'Enter') {
-                checkAnswer();
-            }
-        });
-
-        // Start by showing the landing page
-        showLandingPage();
-    </script>
-</body>
-</html>
+initializeGame();

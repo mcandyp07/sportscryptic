@@ -131,72 +131,71 @@
     </div>
 
     <script>
-        // JavaScript code here (we'll add this in the next step)
-    </script>
-    const answerGrid = document.getElementById('answer-grid');
-const keyboard = document.getElementById('keyboard');
-const hint = document.getElementById('hint');
-const result = document.getElementById('result');
+        const answerGrid = document.getElementById('answer-grid');
+        const keyboard = document.getElementById('keyboard');
+        const hint = document.getElementById('hint');
+        const result = document.getElementById('result');
 
-const correctAnswer = 'SHOWERS';
-let currentAnswer = ' '.repeat(correctAnswer.length);
-let attempts = 0;
+        const correctAnswer = 'SHOWERS';
+        let currentAnswer = ' '.repeat(correctAnswer.length);
+        let attempts = 0;
 
-function initializeGame() {
-    renderAnswerGrid();
-    renderKeyboard();
-}
-
-function renderAnswerGrid() {
-    answerGrid.innerHTML = currentAnswer
-        .split('')
-        .map(letter => `<div class="letter-box">${letter}</div>`)
-        .join('');
-}
-
-function renderKeyboard() {
-    const keys = 'QWERTYUIOPASDFGHJKLZXCVBNM';
-    keyboard.innerHTML = keys
-        .split('')
-        .map(key => `<button class="key" onclick="handleKeyPress('${key}')">${key}</button>`)
-        .join('');
-}
-
-function handleKeyPress(key) {
-    const index = currentAnswer.indexOf(' ');
-    if (index !== -1) {
-        currentAnswer = currentAnswer.substring(0, index) + key + currentAnswer.substring(index + 1);
-        renderAnswerGrid();
-    }
-}
-
-function showHint() {
-    hint.textContent = "Think about what athletes might use after a game.";
-    attempts++;
-}
-
-function showLetter() {
-    let index;
-    do {
-        index = Math.floor(Math.random() * correctAnswer.length);
-    } while (currentAnswer[index] !== ' ');
-    currentAnswer = currentAnswer.substring(0, index) + correctAnswer[index] + currentAnswer.substring(index + 1);
-    renderAnswerGrid();
-    attempts++;
-}
-
-function checkAnswer() {
-    if (currentAnswer.toUpperCase() === correctAnswer) {
-        result.textContent = "Correct! Well done!";
-    } else {
-        result.textContent = "Not quite right. Try again!";
-        attempts++;
-        if (attempts >= 5) {
-            result.textContent = `Out of attempts. The correct answer was: ${correctAnswer}`;
+        function initializeGame() {
+            renderAnswerGrid();
+            renderKeyboard();
         }
-    }
-}
 
-initializeGame();
+        function renderAnswerGrid() {
+            answerGrid.innerHTML = currentAnswer
+                .split('')
+                .map(letter => `<div class="letter-box">${letter}</div>`)
+                .join('');
+        }
+
+        function renderKeyboard() {
+            const keys = 'QWERTYUIOPASDFGHJKLZXCVBNM';
+            keyboard.innerHTML = keys
+                .split('')
+                .map(key => `<button class="key" onclick="handleKeyPress('${key}')">${key}</button>`)
+                .join('');
+        }
+
+        function handleKeyPress(key) {
+            const index = currentAnswer.indexOf(' ');
+            if (index !== -1) {
+                currentAnswer = currentAnswer.substring(0, index) + key + currentAnswer.substring(index + 1);
+                renderAnswerGrid();
+            }
+        }
+
+        function showHint() {
+            hint.textContent = "Think about what athletes might use after a game.";
+            attempts++;
+        }
+
+        function showLetter() {
+            let index;
+            do {
+                index = Math.floor(Math.random() * correctAnswer.length);
+            } while (currentAnswer[index] !== ' ');
+            currentAnswer = currentAnswer.substring(0, index) + correctAnswer[index] + currentAnswer.substring(index + 1);
+            renderAnswerGrid();
+            attempts++;
+        }
+
+        function checkAnswer() {
+            if (currentAnswer.toUpperCase() === correctAnswer) {
+                result.textContent = "Correct! Well done!";
+            } else {
+                result.textContent = "Not quite right. Try again!";
+                attempts++;
+                if (attempts >= 5) {
+                    result.textContent = `Out of attempts. The correct answer was: ${correctAnswer}`;
+                }
+            }
+        }
+
+        initializeGame();
+    </script>
 </body>
 </html>

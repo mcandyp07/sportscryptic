@@ -38,6 +38,7 @@
             font-size: 20px;
             line-height: 30px;
             text-transform: uppercase;
+            vertical-align: top;
         }
         .keyboard {
             margin-top: 20px;
@@ -50,6 +51,10 @@
             height: 30px;
             margin: 2px;
             font-size: 14px;
+        }
+        #answer-blocks {
+            height: 40px;
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -64,6 +69,7 @@
         let score = 0;
         let currentAnswer = '';
         const correctAnswer = 'SHOWERS';
+        let attempts = 0;
 
         function showLandingPage() {
             gameContainer.innerHTML = `
@@ -92,6 +98,7 @@
 
         function startGame() {
             currentAnswer = ' '.repeat(correctAnswer.length);
+            attempts = 0;
             renderGameScreen();
         }
 
@@ -111,8 +118,10 @@
                 <button onclick="checkAnswer()">Submit</button>
                 <button onclick="showHint()">Show Hint</button>
                 <button onclick="showLetter()">Show Letter</button>
+                <button onclick="clearAnswer()">Clear</button>
                 <p id="hint"></p>
                 <p id="result"></p>
+                <p>Attempts: ${attempts}/5</p>
                 <button onclick="showLandingPage()">Back to Home</button>
             `;
         }
@@ -125,17 +134,30 @@
             }
         }
 
+        function handleBackspace() {
+            const lastLetterIndex = currentAnswer.trim().length - 1;
+            if (lastLetterIndex >= 0) {
+                currentAnswer = currentAnswer.substring(0, lastLetterIndex) + ' ' + currentAnswer.substring(lastLetterIndex + 1);
+                renderGameScreen();
+            }
+        }
+
         function checkAnswer() {
             const resultElement = document.getElementById('result');
+            attempts++;
             
-            if (currentAnswer.toUpperCase() === correctAnswer) {
+            if (currentAnswer.trim().toUpperCase() === correctAnswer) {
                 resultElement.textContent = "Correct!";
                 streak++;
                 score += 10;
                 setTimeout(showLandingPage, 2000);
+            } else if (attempts >= 5) {
+                resultElement.textContent = `Out of attempts. The correct answer was: ${correctAnswer}`;
+                setTimeout(showLandingPage, 3000);
             } else {
-                resultElement.textContent = "Try again!";
+                resultElement.textContent = "Not this time, try again.";
             }
+            renderGameScreen();
         }
 
         function showHint() {
@@ -151,10 +173,19 @@
             renderGameScreen();
         }
 
+        function clearAnswer() {
+            currentAnswer = ' '.repeat(correctAnswer.length);
+            renderGameScreen();
+        }
+
         // Enable keyboard input
         document.addEventListener('keydown', function(event) {
             if (event.key.match(/^[a-zA-Z]$/)) {
                 handleKeyPress(event.key.toUpperCase());
+            } else if (event.key === 'Backspace') {
+                handleBackspace();
+            } else if (event.key === 'Enter') {
+                checkAnswer();
             }
         });
 

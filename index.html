@@ -7,186 +7,58 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+            text-align: center;
+            margin: 20px;
             background-color: #f0f8ff;
         }
         .container {
+            max-width: 600px;
+            margin: 0 auto;
             background-color: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            max-width: 400px;
-            width: 100%;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        h1 { color: #1e90ff; }
         button {
-            background-color: #1e90ff;
+            background-color: #4CAF50;
             color: white;
-            border: none;
             padding: 10px 20px;
-            margin: 5px;
+            border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
         }
-        .answer-grid {
-            display: flex;
-            justify-content: center;
-            margin: 10px 0;
-        }
-        .answer-cell {
-            width: 30px;
-            height: 30px;
-            border: 1px solid #1e90ff;
-            margin: 0 2px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: bold;
-        }
-        .keyboard {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-top: 10px;
-        }
-        .key {
-            width: 30px;
-            height: 30px;
-            margin: 2px;
-            font-size: 14px;
-        }
-        #hint-text {
-            margin-top: 10px;
-            font-style: italic;
-        }
-        .attempts {
-            margin-top: 10px;
+        input {
+            padding: 10px;
+            font-size: 16px;
+            width: 200px;
         }
     </style>
 </head>
 <body>
-    <div class="container" id="game-container"></div>
+    <div class="container" id="game-container">
+        <!-- Content will be dynamically inserted here -->
+    </div>
 
     <script>
         const gameContainer = document.getElementById('game-container');
-        let clue = "";
-        let correctAnswer = "";
-        let currentAnswer = "";
-        let attempts = 0;
-        let hint = "";
+        let streak = 0;
+        let score = 0;
 
-    async function fetchDailyClue() {
-    const today = new Date().toISOString().split('T')[0];
-    console.log('Attempting to fetch clue for:', today);
-    try {
-        const response = await fetch(`_clues/${today}.json`);
-        console.log('Fetch response:', response);
-        if (!response.ok) {
-            throw new Error('No clue available for today');
-        }
-        const data = await response.json();
-        console.log('Fetched data:', data);
-        return data;
-    } catch (error) {
-        console.error('Failed to fetch daily clue:', error);
-        return null;
-    }
-}
-            }
-        }
-
-async function startGame() {
-    console.log('Starting game...');
-    const dailyClue = await fetchDailyClue();
-    console.log('Received daily clue:', dailyClue);
-    if (dailyClue) {
-        clue = dailyClue.clue;
-        correctAnswer = dailyClue.answer.toUpperCase();
-        hint = dailyClue.hint;
-    } else {
-        console.log('Using default clue');
-        clue = "Default sports clue (7)";
-        correctAnswer = "DEFAULT";
-        hint = "This is a default hint.";
-    }
-    currentAnswer = " ".repeat(correctAnswer.length);
-    attempts = 0;
-    renderGameScreen();
-}
-        }
-
-        function renderHomeScreen() {
+        function showLandingPage() {
             gameContainer.innerHTML = `
                 <h1>Sports Cryptic</h1>
-                <p>Solve a sports-themed cryptic clue!</p>
+                <p>Solve a clue with a hidden meaning.</p>
                 <button onclick="startGame()">Play</button>
-                <button onclick="showHowToPlay()">How To Play</button>
+                <button onclick="showHowToPlay()">How to Play</button>
+                <p>streak ${streak} | ${score} score</p>
             `;
-        }
-
-        function renderGameScreen() {
-            gameContainer.innerHTML = `
-                <h2>${clue}</h2>
-                <div class="answer-grid">
-                    ${currentAnswer.split('').map(letter => `<div class="answer-cell">${letter}</div>`).join('')}
-                </div>
-                <div class="keyboard">
-                    ${'QWERTYUIOPASDFGHJKLMNOPQRSTUVWXYZ'.split('').map(key => 
-                        `<button class="key" onclick="handleKeyPress('${key}')">${key}</button>`
-                    ).join('')}
-                </div>
-                <button onclick="showHint()">Show Hint</button>
-                <button onclick="showLetter()">Show Letter</button>
-                <button onclick="checkAnswer()">Submit</button>
-                <div id="hint-text"></div>
-                <div class="attempts">Attempts: ${attempts}/5</div>
-            `;
-        }
-
-        function handleKeyPress(key) {
-            const index = currentAnswer.indexOf(' ');
-            if (index !== -1) {
-                currentAnswer = currentAnswer.substring(0, index) + key + currentAnswer.substring(index + 1);
-                renderGameScreen();
-            }
-        }
-
-        function showHint() {
-            document.getElementById('hint-text').textContent = hint;
-        }
-
-        function showLetter() {
-            const unrevealedIndices = currentAnswer.split('').map((char, index) => char === ' ' ? index : -1).filter(i => i !== -1);
-            if (unrevealedIndices.length > 0) {
-                const randomIndex = unrevealedIndices[Math.floor(Math.random() * unrevealedIndices.length)];
-                currentAnswer = currentAnswer.substring(0, randomIndex) + correctAnswer[randomIndex] + currentAnswer.substring(randomIndex + 1);
-                renderGameScreen();
-            }
-        }
-
-        function checkAnswer() {
-            attempts++;
-            if (currentAnswer.toUpperCase() === correctAnswer) {
-                alert("Correct! You solved the cryptic clue!");
-                renderHomeScreen();
-            } else if (attempts >= 5) {
-                alert(`Out of attempts. The correct answer was: ${correctAnswer}`);
-                renderHomeScreen();
-            } else {
-                alert("Incorrect. Try again!");
-                renderGameScreen();
-            }
         }
 
         function showHowToPlay() {
             gameContainer.innerHTML = `
-                <h1>How To Play</h1>
+                <h1>How to Play</h1>
                 <ol>
                     <li>You're presented with a sports-themed cryptic clue.</li>
                     <li>Try to solve the clue by entering letters into the grid.</li>
@@ -195,11 +67,56 @@ async function startGame() {
                     <li>You have 5 attempts to guess the correct answer.</li>
                     <li>Click 'Submit' to check your answer.</li>
                 </ol>
-                <button onclick="renderHomeScreen()">Back to Home</button>
+                <button onclick="showLandingPage()">Back to Home</button>
             `;
         }
 
-        renderHomeScreen();
+        function startGame() {
+            gameContainer.innerHTML = `
+                <h2>Sports team's locker area glistens (7)</h2>
+                <input type="text" id="answer" maxlength="7">
+                <button onclick="checkAnswer()">Submit</button>
+                <button onclick="showHint()">Show Hint</button>
+                <button onclick="showLetter()">Show Letter</button>
+                <p id="hint"></p>
+                <p id="result"></p>
+                <button onclick="showLandingPage()">Back to Home</button>
+            `;
+        }
+
+        function checkAnswer() {
+            const userAnswer = document.getElementById('answer').value.toUpperCase();
+            const resultElement = document.getElementById('result');
+            
+            if (userAnswer === "SHOWERS") {
+                resultElement.textContent = "Correct!";
+                streak++;
+                score += 10;
+                setTimeout(showLandingPage, 2000);
+            } else {
+                resultElement.textContent = "Try again!";
+            }
+        }
+
+        function showHint() {
+            document.getElementById('hint').textContent = "Think about what athletes might use after a game.";
+        }
+
+        function showLetter() {
+            const answer = "SHOWERS";
+            const currentAnswer = document.getElementById('answer').value.toUpperCase();
+            let newAnswer = currentAnswer;
+            for (let i = 0; i < answer.length; i++) {
+                if (currentAnswer[i] !== answer[i]) {
+                    newAnswer = currentAnswer.slice(0, i) + answer[i] + currentAnswer.slice(i + 1);
+                    break;
+                }
+            }
+            document.getElementById('answer').value = newAnswer;
+        }
+
+        // Start by showing the landing page
+        showLandingPage();
     </script>
 </body>
 </html>

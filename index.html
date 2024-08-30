@@ -158,6 +158,7 @@
         let gameCompleted = false;
 
         function showHomePage() {
+            gameCompleted = false; // Reset game completion for replay
             content.innerHTML = `
                 <div class="home-content">
                     <p>Solve a clue with a hidden meaning.</p>
@@ -200,7 +201,7 @@
 
         function renderGameScreen() {
             content.innerHTML = `
-                <div class="clue" id="clue">${currentClue.clue} (${currentClue.answer.length})</div>
+                <div class="clue" id="clue">${currentClue.clue}</div>
                 <div id="attempts">Attempts left: ${attempts}</div>
                 <div class="answer-grid" id="answer-grid"></div>
                 <div class="keyboard" id="keyboard"></div>
@@ -236,88 +237,3 @@
 
         function handleKeyPress(key) {
             const index = currentAnswer.indexOf(' ');
-            if (index !== -1) {
-                currentAnswer = currentAnswer.substring(0, index) + key + currentAnswer.substring(index + 1);
-                renderAnswerGrid();
-            }
-        }
-
-        function showHint() {
-            if (attempts > 1) {
-                const clueElement = document.getElementById('clue');
-                const words = clueElement.textContent.split(' ');
-                const definitionIndex = words.findIndex(word => word.includes(currentClue.definition));
-                words[definitionIndex] = `<span class="highlighted">${words[definitionIndex]}</span>`;
-                clueElement.innerHTML = words.join(' ');
-                attempts--;
-                updateAttempts();
-            } else {
-                alert("Not enough attempts left for a hint!");
-            }
-        }
-
-        function showLetter() {
-            if (attempts > 1) {
-                let availableIndices = [];
-                for (let i = 0; i < currentAnswer.length; i++) {
-                    if (currentAnswer[i] === ' ' || (currentAnswer[i] !== currentClue.answer[i] && currentAnswer[i] !== ' ')) {
-                        availableIndices.push(i);
-                    }
-                }
-                if (availableIndices.length > 0) {
-                    const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
-                    currentAnswer = currentAnswer.substring(0, randomIndex) + currentClue.answer[randomIndex] + currentAnswer.substring(randomIndex + 1);
-                    renderAnswerGrid();
-                    attempts--;
-                    updateAttempts();
-                } else {
-                    alert("No more letters to reveal!");
-                }
-            } else {
-                alert("Not enough attempts left to reveal a letter!");
-            }
-        }
-
-        function checkAnswer() {
-            const result = document.getElementById('result');
-            if (currentAnswer.toUpperCase() === currentClue.answer) {
-                result.textContent = "Correct! Well done!";
-                streak++;
-                score += 10;
-                gameCompleted = true;
-                setTimeout(() => {
-                    showHomePage();
-                    showVideoLink();
-                }, 2000);
-            } else {
-                result.textContent = "Not quite right. Try again!";
-                attempts--;
-                updateAttempts();
-                if (attempts <= 0) {
-                    result.textContent = `Out of attempts. The correct answer was: ${currentClue.answer}`;
-                    setTimeout(showHomePage, 2000);
-                }
-            }
-        }
-
-        function updateAttempts() {
-            document.getElementById('attempts').textContent = `Attempts left: ${attempts}`;
-        }
-
-        function showVideoLink() {
-            alert("Great job! Here's a link to a video explaining the solution: [Your video link here]");
-        }
-
-        document.addEventListener('keydown', (event) => {
-            if (event.key.match(/^[a-zA-Z]$/)) {
-                handleKeyPress(event.key.toUpperCase());
-            } else if (event.key === 'Enter') {
-                checkAnswer();
-            }
-        });
-
-        // Start by showing the home page
-        showHomePage();
-    </script>
-</body>
-</html>

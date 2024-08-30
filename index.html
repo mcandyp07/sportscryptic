@@ -70,6 +70,9 @@
             font-size: 24px;
             font-weight: bold;
         }
+        .letter-box.locked {
+            background-color: #e0e0e0;
+        }
         .keyboard {
             display: grid;
             grid-template-columns: repeat(10, 1fr);
@@ -110,6 +113,17 @@
         .home-content p {
             margin-bottom: 20px;
         }
+        .highlighted {
+            background-color: yellow;
+        }
+        #attempts {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        #hint, #result {
+            text-align: center;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -132,11 +146,16 @@
 
     <script>
         const content = document.getElementById('content');
-        const correctAnswer = 'SHOWERS';
-        let currentAnswer = ' '.repeat(correctAnswer.length);
-        let attempts = 0;
+        const clues = [
+            { clue: "Sports team's locker area glistens (7)", answer: "SHOWERS", definition: "glistens" },
+            { clue: "Mars and Earth's buried phosphorus (6)", answer: "SPOILS", definition: "phosphorus" }
+        ];
+        let currentClue;
+        let currentAnswer;
+        let attempts;
         let streak = 0;
         let score = 0;
+        let gameCompleted = false;
 
         function showHomePage() {
             content.innerHTML = `
@@ -157,24 +176,32 @@
                 <ol>
                     <li>You're presented with a sports-themed cryptic clue.</li>
                     <li>Try to solve the clue by entering letters into the grid.</li>
-                    <li>Use 'Hint' for a text hint about the clue.</li>
+                    <li>Use 'Hint' to highlight the definition in the clue.</li>
                     <li>Use 'Show Letter' to reveal a random correct letter.</li>
                     <li>You have 5 attempts to guess the correct answer.</li>
                     <li>Click 'Submit' to check your answer.</li>
+                    <li>Once solved, you can't play again until you refresh the page.</li>
                 </ol>
                 <button class="action-button" onclick="showHomePage()">Back to Home</button>
             `;
         }
 
         function startGame() {
-            currentAnswer = ' '.repeat(correctAnswer.length);
-            attempts = 0;
+            if (gameCompleted) {
+                alert("You've already completed today's puzzle. Refresh the page to play again!");
+                return;
+            }
+
+            currentClue = clues[Math.floor(Math.random() * clues.length)];
+            currentAnswer = ' '.repeat(currentClue.answer.length);
+            attempts = 5;
             renderGameScreen();
         }
 
         function renderGameScreen() {
             content.innerHTML = `
-                <div class="clue">Sports team's locker area glistens (7)</div>
+                <div class="clue" id="clue">${currentClue.clue} (${currentClue.answer.length})</div>
+                <div id="attempts">Attempts left: ${attempts}</div>
                 <div class="answer-grid" id="answer-grid"></div>
                 <div class="keyboard" id="keyboard"></div>
                 <div class="action-buttons">
@@ -194,7 +221,7 @@
             const answerGrid = document.getElementById('answer-grid');
             answerGrid.innerHTML = currentAnswer
                 .split('')
-                .map(letter => `<div class="letter-box">${letter}</div>`)
+                .map((letter, index) => `<div class="letter-box ${letter !== ' ' ? 'locked' : ''}" data-index="${index}">${letter}</div>`)
                 .join('');
         }
 
@@ -216,36 +243,78 @@
         }
 
         function showHint() {
-            document.getElementById('hint').textContent = "Think about what athletes might use after a game.";
-            attempts++;
+            if (attempts > 1) {
+                const clueElement = document.getElementById('clue');
+                const words = clueElement.textContent.split(' ');
+                const definitionIndex = words.findIndex(word => word.includes(currentClue.definition));
+                words[definitionIndex] = `<span class="highlighted">${words[definitionIndex]}</span>`;
+                clueElement.innerHTML = words.join(' ');
+                attempts--;
+                updateAttempts();
+            } else {
+                alert("Not enough attempts left for a hint!");
+            }
         }
 
         function showLetter() {
-            let index;
-            do {
-                index = Math.floor(Math.random() * correctAnswer.length);
-            } while (currentAnswer[index] !== ' ');
-            currentAnswer = currentAnswer.substring(0, index) + correctAnswer[index] + currentAnswer.substring(index + 1);
-            renderAnswerGrid();
-            attempts++;
+            if (attempts > 1) {
+                let availableIndices = [];
+                for (let i = 0; i < currentAnswer.length; i++) {
+                    if (currentAnswer[i] === ' ' || (currentAnswer[i] !== currentClue.answer[i] && currentAnswer[i] !== ' ')) {
+                        availableIndices.push(i);
+                    }
+                }
+                if (availableIndices.length > 0) {
+                    const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+                    currentAnswer = currentAnswer.substring(0, randomIndex) + currentClue.answer[randomIndex] + currentAnswer.substring(randomIndex + 1);
+                    renderAnswerGrid();
+                    attempts--;
+                    updateAttempts();
+                } else {
+                    alert("No more letters to reveal!");
+                }
+            } else {
+                alert("Not enough attempts left to reveal a letter!");
+            }
         }
 
         function checkAnswer() {
             const result = document.getElementById('result');
-            if (currentAnswer.toUpperCase() === correctAnswer) {
+            if (currentAnswer.toUpperCase() === currentClue.answer) {
                 result.textContent = "Correct! Well done!";
                 streak++;
                 score += 10;
-                setTimeout(showHomePage, 2000);
+                gameCompleted = true;
+                setTimeout(() => {
+                    showHomePage();
+                    showVideoLink();
+                }, 2000);
             } else {
                 result.textContent = "Not quite right. Try again!";
-                attempts++;
-                if (attempts >= 5) {
-                    result.textContent = `Out of attempts. The correct answer was: ${correctAnswer}`;
+                attempts--;
+                updateAttempts();
+                if (attempts <= 0) {
+                    result.textContent = `Out of attempts. The correct answer was: ${currentClue.answer}`;
                     setTimeout(showHomePage, 2000);
                 }
             }
         }
+
+        function updateAttempts() {
+            document.getElementById('attempts').textContent = `Attempts left: ${attempts}`;
+        }
+
+        function showVideoLink() {
+            alert("Great job! Here's a link to a video explaining the solution: [Your video link here]");
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key.match(/^[a-zA-Z]$/)) {
+                handleKeyPress(event.key.toUpperCase());
+            } else if (event.key === 'Enter') {
+                checkAnswer();
+            }
+        });
 
         // Start by showing the home page
         showHomePage();

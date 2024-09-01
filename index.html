@@ -226,14 +226,22 @@
                 .join('');
         }
 
-        function renderKeyboard() {
-            const keyboard = document.getElementById('keyboard');
-            const keys = 'QWERTYUIOPASDFGHJKLZXCVBNM';
-            keyboard.innerHTML = keys
-                .split('')
-                .map(key => `<button class="key" onclick="handleKeyPress('${key}')">${key}</button>`)
-                .join('');
-        }
+      function renderKeyboard() {
+    const keyboard = document.getElementById('keyboard');
+    const keys = 'QWERTYUIOPASDFGHJKLZXCVBNM';
+    keyboard.innerHTML = keys
+        .split('')
+        .map(key => `<button class="key" onclick="handleKeyPress('${key}')">${key}</button>`)
+        .join('') + 
+        `<button class="key" onclick="handleDelete()">Delete</button>`;
+}
 
         function handleKeyPress(key) {
             const index = currentAnswer.indexOf(' ');
+            function handleDelete() {
+    const index = currentAnswer.lastIndexOf(' ') - 1;
+    if (index >= 0) {
+        currentAnswer = currentAnswer.substring(0, index) + ' ' + currentAnswer.substring(index + 1);
+        renderAnswerGrid();
+    }
+}

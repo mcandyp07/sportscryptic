@@ -4,97 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sporting Cryptic - Daily Puzzle</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #f0f0f0;
-        }
-        .game-container {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        #clue {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-        }
-        .answer-boxes {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-        .letter-box {
-            width: 30px;
-            height: 30px;
-            border: 2px solid #333;
-            margin: 0 5px;
-            font-size: 1.2rem;
-            text-align: center;
-            text-transform: uppercase;
-        }
-        .keyboard {
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            gap: 5px;
-            max-width: 500px;
-            width: 100%;
-            margin: 0 auto;
-        }
-        .key {
-            padding: 10px;
-            background-color: #ddd;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .key:hover {
-            background-color: #bbb;
-        }
-        .key.wide {
-            grid-column: span 2;
-        }
-        #submit, #hint {
-            margin-top: 10px;
-            padding: 10px 20px;
-            font-size: 1rem;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        #submit:hover, #hint:hover {
-            background-color: #45a049;
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="game-container">
-        <h1>Today's Sporting Cryptic Puzzle</h1>
-        <p id="clue">Loading clue...</p>
-        <div class="answer-boxes" id="answer-boxes"></div>
-        <button id="submit">Submit</button>
-        <button id="hint">Get Hint</button>
-    </div>
-    <div class="keyboard">
-        <!-- Keyboard will be populated by JavaScript -->
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-6 space-y-6">
+        <h1 class="text-3xl font-bold text-center text-gray-800">Today's Sporting Cryptic Puzzle</h1>
+        <p id="clue" class="text-xl text-center text-gray-600">Loading clue...</p>
+        <div id="answer-boxes" class="flex justify-center space-x-2"></div>
+        <div class="flex space-x-4 justify-center">
+            <button id="submit" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition">Submit</button>
+            <button id="hint" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">Get Hint</button>
+        </div>
+        <div id="keyboard" class="grid grid-cols-10 gap-1 mt-4"></div>
     </div>
 
     <script>
-        const keyboard = document.querySelector('.keyboard');
+        const keyboard = document.getElementById('keyboard');
         const answerBoxes = document.getElementById('answer-boxes');
         const submitButton = document.getElementById('submit');
         const hintButton = document.getElementById('hint');
@@ -103,43 +28,48 @@
         let answerLength = 0;
         let currentPosition = 0;
 
-        const keys = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-        keys.forEach(key => {
+        function addKey(text, classes = [], span = 1) {
             const button = document.createElement('button');
-            button.textContent = key;
-            button.classList.add('key');
+            button.textContent = text;
+            button.classList.add('p-2', 'bg-gray-200', 'rounded', 'hover:bg-gray-300', 'transition', ...classes);
+            if (span > 1) {
+                button.style.gridColumn = `span ${span}`;
+            }
             button.addEventListener('click', () => {
                 if (currentPosition < answerLength) {
-                    answerBoxes.children[currentPosition].textContent = key;
+                    answerBoxes.children[currentPosition].textContent = text === 'Space' ? ' ' : text;
                     currentPosition++;
                 }
             });
             keyboard.appendChild(button);
-        });
+        }
+
+        // Add letter keys
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(key => addKey(key));
+
+        // Add space bar
+        addKey('Space', ['col-span-4']);
 
         // Add delete key
-        const deleteKey = document.createElement('button');
-        deleteKey.textContent = 'Delete';
-        deleteKey.classList.add('key', 'wide');
-        deleteKey.addEventListener('click', () => {
+        addKey('Delete', ['col-span-2']);
+        keyboard.lastElementChild.addEventListener('click', () => {
             if (currentPosition > 0) {
                 currentPosition--;
                 answerBoxes.children[currentPosition].textContent = '';
             }
         });
-        keyboard.appendChild(deleteKey);
 
         // Fetch and display the clue
         fetch('/_clues/YYYY-MM-DD.json') // Replace YYYY-MM-DD with actual date or logic to get current date
             .then(response => response.json())
             .then(data => {
                 clueElement.textContent = data.clue;
-                answerLength = data.answerLength; // Assuming the JSON includes the answer length
+                answerLength = data.answerLength;
                 
                 // Create answer boxes
                 for (let i = 0; i < answerLength; i++) {
                     const box = document.createElement('div');
-                    box.classList.add('letter-box');
+                    box.classList.add('w-8', 'h-8', 'border-2', 'border-gray-300', 'rounded', 'flex', 'items-center', 'justify-center', 'text-xl', 'font-bold', 'uppercase');
                     answerBoxes.appendChild(box);
                 }
             })

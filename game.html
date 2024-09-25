@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sporting Cryptic - Daily Puzzle</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .game-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        #clue, #answer-display {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        #answer-input {
+            font-size: 1.2rem;
+            padding: 5px;
+            width: 200px;
+        }
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 5px;
+            max-width: 500px;
+            width: 100%;
+        }
+        .key {
+            padding: 10px;
+            background-color: #ddd;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .key:hover {
+            background-color: #bbb;
+        }
+        #submit, #hint {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #submit:hover, #hint:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Today's Sporting Cryptic Puzzle</h1>
+        <p id="clue">Loading clue...</p>
+        <div id="answer-display"></div>
+        <input type="text" id="answer-input" readonly>
+        <button id="submit">Submit</button>
+        <button id="hint">Get Hint</button>
+    </div>
+    <div class="keyboard">
+        <!-- Keyboard will be populated by JavaScript -->
+    </div>
+
+    <script>
+        const keyboard = document.querySelector('.keyboard');
+        const answerInput = document.getElementById('answer-input');
+        const submitButton = document.getElementById('submit');
+        const hintButton = document.getElementById('hint');
+        const clueElement = document.getElementById('clue');
+        const answerDisplay = document.getElementById('answer-display');
+
+        const keys = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+        keys.forEach(key => {
+            const button = document.createElement('button');
+            button.textContent = key;
+            button.classList.add('key');
+            button.addEventListener('click', () => {
+                answerInput.value += key;
+            });
+            keyboard.appendChild(button);
+        });
+
+        // Add backspace key
+        const backspace = document.createElement('button');
+        backspace.textContent = '←';
+        backspace.classList.add('key');
+        backspace.addEventListener('click', () => {
+            answerInput.value = answerInput.value.slice(0, -1);
+        });
+        keyboard.appendChild(backspace);
+
+        // Fetch and display the clue
+        fetch('/_clues/YYYY-MM-DD.json') // Replace YYYY-MM-DD with actual date or logic to get current date
+            .then(response => response.json())
+            .then(data => {
+                clueElement.textContent = data.clue;
+            })
+            .catch(error => {
+                console.error('Error fetching clue:', error);
+                clueElement.textContent = 'Error loading clue. Please try again later.';
+            });
+
+        submitButton.addEventListener('click', () => {
+            // Add logic to check the answer
+            console.log('Submitted answer:', answerInput.value);
+            // You'll need to implement the checking logic and update the UI accordingly
+        });
+
+        hintButton.addEventListener('click', () => {
+            // Add logic to show a hint
+            console.log('Hint requested');
+            // You'll need to implement the hint logic and update the UI accordingly
+        });
+    </script>
+</body>
+</html>

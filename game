@@ -24,14 +24,23 @@
             margin-bottom: 20px;
             text-align: center;
         }
-        #clue, #answer-display {
+        #clue {
             font-size: 1.2rem;
             margin-bottom: 20px;
         }
-        #answer-input {
+        .answer-boxes {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .letter-box {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #333;
+            margin: 0 5px;
             font-size: 1.2rem;
-            padding: 5px;
-            width: 200px;
+            text-align: center;
+            text-transform: uppercase;
         }
         .keyboard {
             display: grid;
@@ -39,6 +48,7 @@
             gap: 5px;
             max-width: 500px;
             width: 100%;
+            margin: 0 auto;
         }
         .key {
             padding: 10px;
@@ -51,6 +61,9 @@
         }
         .key:hover {
             background-color: #bbb;
+        }
+        .key.wide {
+            grid-column: span 2;
         }
         #submit, #hint {
             margin-top: 10px;
@@ -72,8 +85,7 @@
     <div class="game-container">
         <h1>Today's Sporting Cryptic Puzzle</h1>
         <p id="clue">Loading clue...</p>
-        <div id="answer-display"></div>
-        <input type="text" id="answer-input" readonly>
+        <div class="answer-boxes" id="answer-boxes"></div>
         <button id="submit">Submit</button>
         <button id="hint">Get Hint</button>
     </div>
@@ -83,11 +95,13 @@
 
     <script>
         const keyboard = document.querySelector('.keyboard');
-        const answerInput = document.getElementById('answer-input');
+        const answerBoxes = document.getElementById('answer-boxes');
         const submitButton = document.getElementById('submit');
         const hintButton = document.getElementById('hint');
         const clueElement = document.getElementById('clue');
-        const answerDisplay = document.getElementById('answer-display');
+
+        let answerLength = 0;
+        let currentPosition = 0;
 
         const keys = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
         keys.forEach(key => {
@@ -95,25 +109,39 @@
             button.textContent = key;
             button.classList.add('key');
             button.addEventListener('click', () => {
-                answerInput.value += key;
+                if (currentPosition < answerLength) {
+                    answerBoxes.children[currentPosition].textContent = key;
+                    currentPosition++;
+                }
             });
             keyboard.appendChild(button);
         });
 
-        // Add backspace key
-        const backspace = document.createElement('button');
-        backspace.textContent = '←';
-        backspace.classList.add('key');
-        backspace.addEventListener('click', () => {
-            answerInput.value = answerInput.value.slice(0, -1);
+        // Add delete key
+        const deleteKey = document.createElement('button');
+        deleteKey.textContent = 'Delete';
+        deleteKey.classList.add('key', 'wide');
+        deleteKey.addEventListener('click', () => {
+            if (currentPosition > 0) {
+                currentPosition--;
+                answerBoxes.children[currentPosition].textContent = '';
+            }
         });
-        keyboard.appendChild(backspace);
+        keyboard.appendChild(deleteKey);
 
         // Fetch and display the clue
         fetch('/_clues/YYYY-MM-DD.json') // Replace YYYY-MM-DD with actual date or logic to get current date
             .then(response => response.json())
             .then(data => {
                 clueElement.textContent = data.clue;
+                answerLength = data.answerLength; // Assuming the JSON includes the answer length
+                
+                // Create answer boxes
+                for (let i = 0; i < answerLength; i++) {
+                    const box = document.createElement('div');
+                    box.classList.add('letter-box');
+                    answerBoxes.appendChild(box);
+                }
             })
             .catch(error => {
                 console.error('Error fetching clue:', error);
@@ -121,15 +149,16 @@
             });
 
         submitButton.addEventListener('click', () => {
-            // Add logic to check the answer
-            console.log('Submitted answer:', answerInput.value);
-            // You'll need to implement the checking logic and update the UI accordingly
+            const submittedAnswer = Array.from(answerBoxes.children)
+                .map(box => box.textContent)
+                .join('');
+            console.log('Submitted answer:', submittedAnswer);
+            // Implement answer checking logic here
         });
 
         hintButton.addEventListener('click', () => {
-            // Add logic to show a hint
             console.log('Hint requested');
-            // You'll need to implement the hint logic and update the UI accordingly
+            // Implement hint logic here
         });
     </script>
 </body>

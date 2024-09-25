@@ -3,245 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sports Cryptic</title>
+    <title>Sporting Cryptic</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-        }
-        .container {
-            background-color: white;
-            border-radius: 10px;
+            margin: 0;
+            background-color: #f0f0f0;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+        }
+        #game-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            text-align: center;
             max-width: 500px;
             width: 100%;
         }
-        .logo {
-            text-align: center;
+        h1 {
+            color: #333;
             margin-bottom: 20px;
         }
-        .logo-sports {
-            display: flex;
-            justify-content: center;
-        }
-        .logo-letter {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: white;
-            border-radius: 5px;
-            margin: 0 2px;
-        }
-        .logo-cryptic {
-            font-size: 36px;
-            font-weight: bold;
-            color: #333;
-            margin-top: 10px;
-        }
-        .clue {
+        #clue {
             font-size: 18px;
             margin-bottom: 20px;
-            text-align: center;
+            color: #555;
         }
-        .answer-grid {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-        .letter-box {
-            width: 40px;
-            height: 40px;
-            border: 2px solid #ddd;
-            margin: 0 5px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            font-weight: bold;
-        }
-        .letter-box.locked {
-            background-color: #e0e0e0;
-        }
-        .keyboard {
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            gap: 5px;
-            margin-bottom: 20px;
-        }
-        .key {
-            background-color: #f0f0f0;
-            border: none;
-            padding: 10px;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        .key:hover {
-            background-color: #e0e0e0;
-        }
-        .action-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-        .action-button {
+        button {
             background-color: #4CAF50;
-            color: white;
             border: none;
+            color: white;
             padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
             cursor: pointer;
             border-radius: 5px;
-            font-size: 16px;
+            transition: background-color 0.3s;
         }
-        .action-button:hover {
+        button:hover {
             background-color: #45a049;
         }
-        .home-content {
-            text-align: center;
-        }
-        .home-content p {
-            margin-bottom: 20px;
-        }
-        .highlighted {
-            background-color: yellow;
-        }
-        #attempts {
-            text-align: center;
-            margin-bottom: 10px;
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
         }
         #hint, #result {
-            text-align: center;
-            margin-top: 10px;
+            margin: 10px 0;
+            font-style: italic;
+            color: #666;
+        }
+        #video-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #4CAF50;
+            text-decoration: none;
+        }
+        #video-link:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div class="container" id="game-container">
-        <div class="logo">
-            <div class="logo-sports">
-                <span class="logo-letter" style="background-color: #009688;">S</span>
-                <span class="logo-letter" style="background-color: #E91E63;">P</span>
-                <span class="logo-letter" style="background-color: #FFC107;">O</span>
-                <span class="logo-letter" style="background-color: #3F51B5;">R</span>
-                <span class="logo-letter" style="background-color: #8BC34A;">T</span>
-                <span class="logo-letter" style="background-color: #009688;">S</span>
-            </div>
-            <div class="logo-cryptic">CRYPTIC</div>
-        </div>
-        <div id="content">
-            <!-- Content will be dynamically inserted here -->
-        </div>
+    <div id="game-container">
+        <h1>Sporting Cryptic</h1>
+        <p id="clue">Loading today's clue...</p>
+        <button id="hint-button">Get Hint</button>
+        <button id="reveal-letter-button">Reveal Letter</button>
+        <p id="hint" style="display: none;"></p>
+        <input type="text" id="answer-input" placeholder="Your answer">
+        <button id="check-answer-button">Check Answer</button>
+        <p id="result"></p>
+        <a id="video-link" href="#" target="_blank" style="display: none;">View Answer Video</a>
     </div>
-
     <script>
-        const content = document.getElementById('content');
-        const clues = [
-            { clue: "Sports team's locker area glistens (7)", answer: "SHOWERS", definition: "glistens" },
-            { clue: "Mars and Earth's buried phosphorus (6)", answer: "SPOILS", definition: "phosphorus" }
-        ];
-        let currentClue;
-        let currentAnswer;
-        let attempts;
-        let streak = 0;
-        let score = 0;
-        let gameCompleted = false;
+        let dailyClueData;
+        let revealedLetters = new Set();
 
-        function showHomePage() {
-            gameCompleted = false; // Reset game completion for replay
-            content.innerHTML = `
-                <div class="home-content">
-                    <p>Solve a clue with a hidden meaning.</p>
-                    <p>Streak: ${streak} | Score: ${score}</p>
-                    <div class="action-buttons">
-                        <button class="action-button" onclick="startGame()">Play</button>
-                        <button class="action-button" onclick="showHowToPlay()">How to Play</button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function showHowToPlay() {
-            content.innerHTML = `
-                <h2>How to Play</h2>
-                <ol>
-                    <li>You're presented with a sports-themed cryptic clue.</li>
-                    <li>Try to solve the clue by entering letters into the grid.</li>
-                    <li>Use 'Hint' to highlight the definition in the clue.</li>
-                    <li>Use 'Show Letter' to reveal a random correct letter.</li>
-                    <li>You have 5 attempts to guess the correct answer.</li>
-                    <li>Click 'Submit' to check your answer.</li>
-                    <li>Once solved, you can't play again until you refresh the page.</li>
-                </ol>
-                <button class="action-button" onclick="showHomePage()">Back to Home</button>
-            `;
-        }
-
-        function startGame() {
-            if (gameCompleted) {
-                alert("You've already completed today's puzzle. Refresh the page to play again!");
-                return;
+        async function fetchDailyClue() {
+            try {
+                const response = await fetch('clues.json');
+                const clues = await response.json();
+                const today = new Date().toISOString().split('T')[0];
+                dailyClueData = clues[today] || clues[Object.keys(clues)[Object.keys(clues).length - 1]];
+                updateUI();
+            } catch (error) {
+                console.error('Error fetching clue:', error);
+                document.getElementById('clue').textContent = 'Error loading clue. Please try again later.';
             }
-
-            currentClue = clues[Math.floor(Math.random() * clues.length)];
-            currentAnswer = ' '.repeat(currentClue.answer.length);
-            attempts = 5;
-            renderGameScreen();
         }
 
-        function renderGameScreen() {
-            content.innerHTML = `
-                <div class="clue" id="clue">${currentClue.clue}</div>
-                <div id="attempts">Attempts left: ${attempts}</div>
-                <div class="answer-grid" id="answer-grid"></div>
-                <div class="keyboard" id="keyboard"></div>
-                <div class="action-buttons">
-                    <button class="action-button" onclick="showHint()">Hint</button>
-                    <button class="action-button" onclick="showLetter()">Show Letter</button>
-                    <button class="action-button" onclick="checkAnswer()">Submit</button>
-                </div>
-                <p id="hint"></p>
-                <p id="result"></p>
-                <button class="action-button" onclick="showHomePage()">Back to Home</button>
-            `;
-            renderAnswerGrid();
-            renderKeyboard();
+        function updateUI() {
+            document.getElementById('clue').textContent = dailyClueData.clue;
+            document.getElementById('video-link').href = dailyClueData.videoLink;
         }
 
-        function renderAnswerGrid() {
-            const answerGrid = document.getElementById('answer-grid');
-            answerGrid.innerHTML = currentAnswer
-                .split('')
-                .map((letter, index) => `<div class="letter-box ${letter !== ' ' ? 'locked' : ''}" data-index="${index}">${letter}</div>`)
-                .join('');
-        }
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchDailyClue();
 
-      function renderKeyboard() {
-    const keyboard = document.getElementById('keyboard');
-    const keys = 'QWERTYUIOPASDFGHJKLZXCVBNM';
-    keyboard.innerHTML = keys
-        .split('')
-        .map(key => `<button class="key" onclick="handleKeyPress('${key}')">${key}</button>`)
-        .join('') + 
-        `<button class="key" onclick="handleDelete()">Delete</button>`;
-}
+            const hintButton = document.getElementById('hint-button');
+            const revealLetterButton = document.getElementById('reveal-letter-button');
+            const hintElement = document.getElementById('hint');
+            const answerInput = document.getElementById('answer-input');
+            const checkAnswerButton = document.getElementById('check-answer-button');
+            const resultElement = document.getElementById('result');
+            const videoLinkElement = document.getElementById('video-link');
 
-        function handleKeyPress(key) {
-            const index = currentAnswer.indexOf(' ');
-            function handleDelete() {
-    const index = currentAnswer.lastIndexOf(' ') - 1;
-    if (index >= 0) {
-        currentAnswer = currentAnswer.substring(0, index) + ' ' + currentAnswer.substring(index + 1);
-        renderAnswerGrid();
-    }
-}
+            hintButton.addEventListener('click', () => {
+                hintElement.textContent = dailyClueData.hint;
+                hintElement.style.display = 'block';
+            });
+
+            revealLetterButton.addEventListener('click', () => {
+                const answer = dailyClueData.answer.toLowerCase();
+                let unrevealedIndices = [];
+                
+                for (let i = 0; i < answer.length; i++) {
+                    if (!revealedLetters.has(i)) {
+                        unrevealedIndices.push(i);
+                    }
+                }
+                
+                if (unrevealedIndices.length > 0) {
+                    const randomIndex = unrevealedIndices[Math.floor(Math.random() * unrevealedIndices.length)];
+                    revealedLetters.add(randomIndex);
+                    
+                    let currentAnswer = answerInput.value.toLowerCase().padEnd(answer.length, '_');
+                    let newAnswer = '';
+                    for (let i = 0; i < answer.length; i++) {
+                        newAnswer += revealedLetters.has(i) ? answer[i] : currentAnswer[i];
+                    }
+                    answerInput.value = newAnswer;
+                }
+            });
+
+            checkAnswerButton.addEventListener('click', () => {
+                const userAnswer = answerInput.value.toLowerCase();
+                if (userAnswer === dailyClueData.answer.toLowerCase()) {
+                    resultElement.textContent = 'Correct! Well done!';
+                    videoLinkElement.style.display = 'inline-block';
+                } else {
+                    resultElement.textContent = 'Sorry, that\'s not correct. Try again!';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
